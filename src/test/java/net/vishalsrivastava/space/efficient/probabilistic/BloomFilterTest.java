@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 class BloomFilterTest {
 
@@ -12,7 +14,7 @@ class BloomFilterTest {
     void testWithInput() {
         BloomFilter<String> stringBloomFilter = new BloomFilter<>(20, 0.05);
 
-        String[] wordPresent = {"abound", "abounds", "abundance", "abundant", "accessable",
+        String[] wordPresent = {"abound", "abounds", "abundance", "abundant", "accessible",
                 "bloom", "blossom", "bolster", "bonny", "bonus", "bonuses",
                 "coherent", "cohesive", "colorful", "comely", "comfort",
                 "gems", "generosity", "generous", "generously", "genial"};
@@ -21,6 +23,45 @@ class BloomFilterTest {
         String[] wordAbsent = {"bluff", "cheater", "hate", "war", "humanity",
                 "racism", "hurt", "nuke", "gloomy", "facebook",
                 "geeksforgeeks", "twitter"};
+
+        Set<String> falsePositive = new HashSet<>();
+        falsePositive.add("twitter");
+        falsePositive.add("bluff");
+        falsePositive.add("hate");
+
+        Set<String> probablyPresent = new HashSet<>();
+        probablyPresent.add("abound");
+        probablyPresent.add("abounds");
+        probablyPresent.add("abundance");
+        probablyPresent.add("abundant");
+        probablyPresent.add("accessible");
+        probablyPresent.add("bloom");
+        probablyPresent.add("blossom");
+        probablyPresent.add("bolster");
+        probablyPresent.add("bonny");
+        probablyPresent.add("bonus");
+        probablyPresent.add("bonuses");
+        probablyPresent.add("coherent");
+        probablyPresent.add("cohesive");
+        probablyPresent.add("colorful");
+        probablyPresent.add("comely");
+        probablyPresent.add("comfort");
+        probablyPresent.add("gems");
+        probablyPresent.add("generosity");
+        probablyPresent.add("generous");
+        probablyPresent.add("generously");
+        probablyPresent.add("genial");
+
+        Set<String> notPresent = new HashSet<>();
+        notPresent.add("nuke");
+        notPresent.add("racism");
+        notPresent.add("humanity");
+        notPresent.add("cheater");
+        notPresent.add("war");
+        notPresent.add("facebook");
+        notPresent.add("gloomy");
+        notPresent.add("hurt");
+        notPresent.add("geeksforgeeks");
 
 
         for (String item : wordPresent) {
@@ -44,12 +85,17 @@ class BloomFilterTest {
         for (String word : testData) {
             if (stringBloomFilter.exists(word)) {
                 if (Arrays.asList(wordAbsent).contains(word)) {
-                    System.out.printf("%s is a false positive%n", word);
+                    if (!falsePositive.contains(word)) {
+                        Assertions.fail(String.format("%s should be false positive", word));
+                    }
                 } else {
-                    System.out.printf("%s is probably present%n", word);
+                    if (!probablyPresent.contains(word))
+                        Assertions.fail(String.format("%s should be probably present", word));
                 }
             } else {
-                System.out.printf("%s is definitely not present%n", word);
+                if (!notPresent.contains(word)) {
+                    Assertions.fail(String.format("%s should be definitely not present", word));
+                }
             }
         }
 
